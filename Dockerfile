@@ -6,7 +6,7 @@ LABEL application=todobackend
 RUN apk add --no-cache bash git
 
 # Install build dependencies
-RUN apk add --no-cache gcc python3-dev libffi-dev musl-dev linux-headers mariadb-dev
+RUN apk add --no-cache gcc python3-dev libffi-dev musl-dev linux-headers mariadb-dev 
 RUN pip3 install wheel
 
 # Copy requirements
@@ -29,7 +29,8 @@ FROM alpine
 LABEL application=todobackend
 
 # Install operating system dependecies
-RUN apk add --no-cache python3 mariadb-client bash curl bats jq
+RUN apk add --no-cache python3 mariadb-client bash curl bats jq && \
+    pip3 install --no-cache awscli
 
 # Create app user
 RUN addgroup -g 1000 app && adduser -u 1000 -G app -D app
@@ -44,6 +45,11 @@ RUN rm -rf /build
 RUN mkdir /public
 RUN chown app:app /public
 VOLUME /public
+
+# Entrypoint script
+COPY entrypoint.sh /usr/bin/entrypoint
+RUN chmod +x /usr/bin/entrypoint
+ENTRYPOINT ["/usr/bin/entrypoint"]
 
 # Set working directory and application user
 WORKDIR /app
